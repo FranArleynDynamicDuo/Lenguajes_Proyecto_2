@@ -57,7 +57,7 @@ obtenerLista(esq([H|T]),ListaRetorno) :-
 obtenerLista(_,[]).
 
 % obtenerCabeza(lista,-Elemento).
-obtenerCabeza([H|T],Elemento) :-
+obtenerCabeza([H|_],Elemento) :-
 	Elemento = H.
 
 % construirNivel(R0,Restante, ListaEntrada,ListaRetorno).
@@ -73,8 +73,8 @@ construirNivel(_,0, ListaEntrada,ListaRetorno) :-
 	ListaRetorno = ListaEntrada.
 
 % Caso 1: Estamos agregando el primer Nodo
-construirNivel(R0,R0, _,ListaRetorno) :-
-	RestanteNuevo is R0 - 1,
+construirNivel(R0,Restante, [],ListaRetorno) :-
+	RestanteNuevo is Restante - 1,
 	construirNivel(R0, RestanteNuevo, [R0|[]], ListaRetorno2),
 	ListaRetorno = ListaRetorno2.
 
@@ -84,18 +84,28 @@ construirNivel(R0,Restante, ListaEntrada,ListaRetorno) :-
 	RestanteNuevo is Restante - 1,
 	construirNivel(R0,RestanteNuevo, ListaTemp ,ListaRetorno2),
 	ListaRetorno = ListaRetorno2.
-	
 
-% esqueleto(+N,+R,-esqueleto)
+% Funcion auxiliar para la recursion de esqueleto	
+esqueleto_Aux(1,R,ListaEntrada , ListaSalida) :-
+	NodoFinal = [R|[]],
+	ListaSalida = [NodoFinal|ListaEntrada].
+
+esqueleto_Aux(N,R,ListaEntrada , ListaSalida) :-
+	NodosTotales is R * N,
+	construirNivel(R,NodosTotales, [],ListaSalida2),
+	N1 is N - 1,
+	esqueleto_Aux(N1,R,[ListaSalida2|ListaEntrada] , ListaSalida3),
+	ListaSalida = ListaSalida3.
+	
 % 	+N : Numero de Niveles Del Arbol
 %	+R : Numero de hijos Por N
 %	-esqueleto: Arbol Resultante
 
 % Caso Base: Arbol con 1 Nodo
-esqueleto(1,_,Esqueleto).
+esqueleto(1,_,_).
 
 % Caso 2: Arbol con mas de 1 nivel, pero con el contador de hijos en 0
-esqueleto(N,0,Esqueleto) :-
+esqueleto(N,0,_) :-
 	N > 1,
 	N is N - 1.
 
@@ -105,21 +115,20 @@ esqueleto(N,R,Esqueleto):-
 	N > 0,
 	% Verificamos que R sea mayor a 0
 	R > 0,
-	% Obtenemos la lista
-	obtenerLista(Esqueleto,ListaEsqueleto),
-	% Construimos el nivel necesario
-	construirNivel(R, R, [], NivelTemp),
-	
+	% Calculamos el numero total de nodos por el nivel
+	TotalNodos is R * N,
+	% Construimos el nivel inicial
+	construirNivel(0, TotalNodos, [], NivelTemp),
 	
 	% Agregamos un nodo al nivel
+	ListaNueva2 = [NivelTemp|[]],
 	
-	
-	R1 is R - 1,
 	N1 is N - 1,
+	
+	esqueleto_Aux(N1,R,ListaNueva2 , ListaSalida),
+	
 	% Devolvemos el esqueleto final
-	Esqueleto = esq(ListaEsqueleto).
-
-% Debe satisfacerse o re-satisfacerse con todos los esqueletos de árboles R-arios con N>0 nodos en el esqueleto
+	Esqueleto = esq(ListaSalida).
 
 % etiquetamiento(+Esqueleto,-Arbol)
 
