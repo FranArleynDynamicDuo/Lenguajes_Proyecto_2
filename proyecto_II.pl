@@ -70,12 +70,14 @@ bienEtiquetado(nodo(Et,[H|T])) :-
 
 % Caso 1: No hay esqueleto previo
 obtenerLista(esq([H|T]),ListaRetorno) :-
+	% Retornamos la lista de aristas
 	ListaRetorno = [H|T].
 % Caso 2: No hay esqueleto previo
 obtenerLista(_,[]).
 
 % obtenerCabeza(lista,-Elemento).
 obtenerCabeza([H|_],Elemento) :-
+	% Retornamos el primer elemento
 	Elemento = H.
 
 % construirNivel(R0,Restante, ListaEntrada,ListaRetorno).
@@ -92,15 +94,22 @@ construirNivel(_,0, ListaEntrada,ListaRetorno) :-
 
 % Caso 1: Estamos agregando el primer Nodo
 construirNivel(R0,Restante, [],ListaRetorno) :-
+	% Restamos un nodo del restante
 	RestanteNuevo is Restante - 1,
+	% Construimos el nuevo nivel
 	construirNivel(R0, RestanteNuevo, [R0|[]], ListaRetorno2),
+	% Retornamos la lista
 	ListaRetorno = ListaRetorno2.
 
 % Caso 2: Estamos agregando otros nodos ademas del primero
 construirNivel(R0,Restante, ListaEntrada,ListaRetorno) :-
+	% Agregamos el elemento a la lista
 	ListaTemp = [R0|ListaEntrada],
+	% Restamos un nodo del restante
 	RestanteNuevo is Restante - 1,
+	% Construimos el nuevo nivel
 	construirNivel(R0,RestanteNuevo, ListaTemp ,ListaRetorno2),
+	% Retornamos la lista
 	ListaRetorno = ListaRetorno2.
 
 % esqueleto_Aux(+N,+R,+ListaEntrada ,-ListaSalida)
