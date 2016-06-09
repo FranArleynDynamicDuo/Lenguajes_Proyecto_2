@@ -25,31 +25,40 @@ etiquetas(arista(Etiqueta,_),Retorno) :- Retorno is Etiqueta.
 %	-Retorno: Nodo extraido
 obtenerNodoDestino(arista(_,Nodo),Retorno):- Retorno = Nodo.
 
-% bienEtiquetado(+Arbol)
-% Verifica si un arbol esta bien etiquetado o no.
-% 	Arbol: Arbol a examenar
-
-% Caso Base: Nodo Unitario
-bienEtiquetado(nodo(_,[])).
 % Caso 1: Arbol con mas de un nodo
-bienEtiquetado(nodo(Et,[H|T])) :-
+bienEtiquetadoAux(nodo(Et,[H|T]), AristasUsadas,AristasUsadasNueva, NodosUsados,NodosUsadosNuevos) :-
 	% Obtenemos el nodo al que lleva la arista
 	obtenerNodoDestino(H,NodoDestino),
 	% Obtenemos la etiqueta de la arista seleccionada
 	etiquetas(H,EtiquetaArista),
+	% Verificamos que la etiqueta de la arista no se encuentra repetida
+	not(member(EtiquetaArista, AristasUsadas)),
 	% Obtenemos su etiqueta
 	etiquetas(NodoDestino,EtiquetaDest),
+	% Verificamos que la etiqueta del nodo destino no se encuentra repetida
+	not(member(EtiquetaDest, NodosUsados)),
 	% Calculamos la diferencia entre la etiqueta del
 	% nodo origen a la etiqueta del nodo destino
 	Resta is abs(EtiquetaDest - Et),
-	% Verificamos que se cumple la formula de buen etiquetado
-	% e=|a-b|
+	% Verificamos que se cumple la formula de buen etiquetado e=|a-b|
 	EtiquetaArista =:= Resta,
-	% Analizamos el arbol que esta al final de
-	% la arista seleccionada
-	bienEtiquetado(NodoDestino),
+	% Analizamos el arbol que esta al final de la arista seleccionada
+	bienEtiquetadoAux(NodoDestino,[EtiquetaArista|AristasUsadas],AristasUsadasNueva2,[EtiquetaDest|NodosUsados],NodosUsadosNuevos2),
 	% Analizamos la siguiente arista
-	bienEtiquetado(nodo(Et,T)).	
+	bienEtiquetadoAux(nodo(Et,T),AristasUsadasNueva2,AristasUsadasNueva, NodosUsadosNuevos2,NodosUsadosNuevos).
+
+% Caso 1: Arbol con mas de un nodo
+bienEtiquetadoAux(nodo(_,[]), AristasUsadas,AristasUsadasNueva, NodosUsados,NodosUsadosNuevos) :-
+	AristasUsadasNueva = AristasUsadas,
+	NodosUsadosNuevos = NodosUsados.
+
+	
+% bienEtiquetado(+Arbol)
+% Verifica si un arbol esta bien etiquetado o no.
+% 	Arbol: Arbol a examenar
+% Caso 1: Arbol con mas de un nodo
+bienEtiquetado(nodo(Et,[H|T])) :-
+	bienEtiquetadoAux(nodo(Et,[H|T]),[],_, [Et|[]] ,_).
 
 % Estructura de Datos
 % esq([[3],[0,0,0]])
