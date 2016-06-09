@@ -1,3 +1,12 @@
+% Potencia(+X,+Y,-Z)
+% Funcion que calcula la potencia Y de X
+%	X: Numero Base
+%	Y: Exponente
+%	Z: Resultado
+potencia(0,0,'ERROR') :- !.
+potencia(X,0,1) :- X =\= 0.
+potencia(X,Y,Z) :- A is Y -1, potencia(X,A,B), Z is B*X.
+
 % etiquetas(+nodo,-Retorno)
 % Obtiene la etiqueta de un nodo
 % 	+nodo: Nodo del cual se extraera la etiqueta
@@ -85,18 +94,35 @@ construirNivel(R0,Restante, ListaEntrada,ListaRetorno) :-
 	construirNivel(R0,RestanteNuevo, ListaTemp ,ListaRetorno2),
 	ListaRetorno = ListaRetorno2.
 
-% Funcion auxiliar para la recursion de esqueleto	
+% esqueleto_Aux(+N,+R,+ListaEntrada ,-ListaSalida)
+% Funcion auxiliar para la recursion de esqueleto
+%	N: Numero de niveles restantes
+%	R: Numero de hijos por nodo
+%	ListaEntrada: Lista Original
+%	ListaSalida: Lista Final
+
+% Caso 1: Primer Nivel
 esqueleto_Aux(1,R,ListaEntrada , ListaSalida) :-
+	% Creo Nivel Tope Del Arbol
 	NodoFinal = [R|[]],
+	% Retorno la lista
 	ListaSalida = [NodoFinal|ListaEntrada].
 
+% Caso 2: Niveles posteriores
 esqueleto_Aux(N,R,ListaEntrada , ListaSalida) :-
-	NodosTotales is R * N,
-	construirNivel(R,NodosTotales, [],ListaSalida2),
+	% Bajamos un nivel
 	N1 is N - 1,
+	% Calculamos el numero total de nodos por el nivel
+	potencia(R,N1,TotalNodos),
+	% Construimos la lista referente al nivel N
+	construirNivel(R,TotalNodos, [],ListaSalida2),
+	% Llamamos a la funcion de nuevo para agregar otro nivel
 	esqueleto_Aux(N1,R,[ListaSalida2|ListaEntrada] , ListaSalida3),
+	% Retornamos la lista final
 	ListaSalida = ListaSalida3.
-	
+
+%	esqueleto
+%	Crea un esqueleto de un arbol	
 % 	+N : Numero de Niveles Del Arbol
 %	+R : Numero de hijos Por N
 %	-esqueleto: Arbol Resultante
@@ -115,18 +141,16 @@ esqueleto(N,R,Esqueleto):-
 	N > 0,
 	% Verificamos que R sea mayor a 0
 	R > 0,
+	% Reducimos el nivel para el calculo del numero de nodos
+	N1 is N - 1,
 	% Calculamos el numero total de nodos por el nivel
-	TotalNodos is R * N,
+	potencia(R,N1,TotalNodos),
 	% Construimos el nivel inicial
 	construirNivel(0, TotalNodos, [], NivelTemp),
-	
 	% Agregamos un nodo al nivel
 	ListaNueva2 = [NivelTemp|[]],
-	
-	N1 is N - 1,
-	
+	% Contruimos el esqueleto utilizando una funcion auxiliar
 	esqueleto_Aux(N1,R,ListaNueva2 , ListaSalida),
-	
 	% Devolvemos el esqueleto final
 	Esqueleto = esq(ListaSalida).
 
