@@ -25,6 +25,21 @@ etiquetas(arista(Etiqueta,_),Retorno) :- Retorno is Etiqueta.
 %	-Retorno: Nodo extraido
 obtenerNodoDestino(arista(_,Nodo),Retorno):- Retorno = Nodo.
 
+% numeroNodosEsqueleto(+Esqueleto,+SumaAcumulada,-SumaFinal)
+% Obtiene los numeros de nodos en un esqueleto
+% 	+Esqueleto: Esqueleto a analizar
+%	+SumaAcumulada: Suma acumulada en la recursion
+%	-SumaFinal: Suma Final
+numeroNodosEsqueleto(esq([H|[]]),SumaAcumulada,SumaFinal) :-
+	sum_list(H,SumaTemp),
+	SumaFinal is SumaAcumulada + SumaTemp.
+
+numeroNodosEsqueleto(esq([H|T]),SumaAcumulada,SumaFinal) :-
+	sum_list(H,SumaTemp), 
+	SumaIniciaNueva is SumaAcumulada + SumaTemp,
+	numeroNodosEsqueleto(esq(T),SumaIniciaNueva,SumaFinal).
+	
+
 % Caso 1: Arbol con mas de un nodo
 bienEtiquetadoAux(nodo(Et,[H|T]), AristasUsadas,AristasUsadasNueva, NodosUsados,NodosUsadosNuevos) :-
 	% Obtenemos el nodo al que lleva la arista
@@ -174,10 +189,43 @@ esqueleto(N,R,Esqueleto):-
 
 % etiquetamiento(+Esqueleto,-Arbol)
 
+% Algoritmo: las aristas se colocan en BFS, las etiquetas de los nodos se calculan
+
+etiquetamiento(esq([[H1|T1]|T]),ArbolResultante) :-
+	% Obtenemos el numero de hijos del nodo original
+	NumeroDeHijos is H1,
+	ListaEntrada = T,
+	numeroNodosEsqueleto(esq([[H1|T1]|T]),0,NumeroNodos),
+	AristaActual is NumeroNodos - 1,
+	etiquetamientoAux(ListaEntrada,NumeroDeHijos,AristaActual,_,ArbolResultante).
+	
+etiquetamientoAux([0|_],_, EtiquetaNodoPadre,AristaActual,_,ArbolResultante) :-
+	Etiqueta is EtiquetaNodoPadre - AristaActual,
+	ArbolResultante = nodo(Etiqueta,[]).
+	
+etiquetamientoAux([_|[]],_,_,ArbolActual,ArbolResultante) :-
+	ArbolResultante = ArbolActual.
+	
+etiquetamientoAux([H|T],NumeroDeHijos,AristaActual,ArbolActual,ArbolResultante) :-
+	H > 0.
+	 
+ 
+	
+%etiquetamientoAuxNivel([H|T]) :-
+	
+
 % Debe satisfacerse si Arbol es un buen etiquetamiento de Esqueleto
 
 % esqEtiquetables(+R,+N)
-
 % Debe satisfacerse si todos los esqueletos de árboles R-arios con N nodos son bien etiquetables 
+%	+N : Numero de Niveles Del Arbol
+%	+R : Numero de hijos Por N
+
+esqEtiquetables(R,N) :-
+	esqueleto(N,R,Esqueleto),
+	etiquetamiento(Esqueleto,Arbol),
+	bienEtiquetado(Arbol).
+	
+	
 
 % describirEtiquetamiento(+Arbol)
