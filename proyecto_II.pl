@@ -118,15 +118,18 @@ obtenerCabeza([H|_],Elemento) :-
 %	+R : Numero de hijos Por N
 %	-esqueleto: Arbol Resultante
 
+% Caso Base: Arbol vacio
+esqueleto(0,_,[]).
+
 % Caso Base: Arbol con 1 Nodo
 esqueleto(1,_,[[0]]).
 
-% Caso 2: Arbol con mas de 1 nivel, pero con el contador de hijos en 0
+% Caso 1: Arbol con mas de 1 nivel, pero con el contador de hijos en 0
 esqueleto(N,0,_) :-
 	N > 1,
 	N is N - 1.
 
-% Caso 1: Arbol con mas de 1 Nodo
+% Caso 2: Arbol con mas de 1 Nodo
 esqueleto(N,R,Esqueleto):-
 	% Verificamos que N sea mayor a 0
 	N > 0,
@@ -157,21 +160,21 @@ esqueleto(N,R,Esqueleto):-
 
 % Caso 1: Primer Nivel
 esqueleto_Aux(0,_,_,[H|T] , ListaSalida) :-
-	%
+	% Obtenemos el numero de hijos a crear
 	sum_list(H,NumeroDeNodosEnNivel),
 	% Construimos la lista referente al nivel N
 	construirNivel(_,NumeroDeNodosEnNivel,0,_, [],_),
 	% Retorno la lista
 	ListaSalida = [H|T].
 
-% Caso 2: Niveles posteriores
+% Caso 2: Nivel Final
 esqueleto_Aux(_,_,[[]|T] , ListaSalida) :-
 	% Retorno la lista
 	ListaSalida = T.
 
-% Caso 2: Niveles posteriores
+% Caso 3: Niveles posteriores
 esqueleto_Aux(N,R0,[H|T] , ListaSalida) :-
-	%
+	% Obtenemos el numero de hijos a crear
 	sum_list(H,NumeroDeNodosEnNivel),
 	% Construimos la lista referente al nivel N
 	construirNivel(R0,NumeroDeNodosEnNivel,N,NodosRestanteNuevo, [],ListaSalida2),
@@ -192,12 +195,13 @@ esqueleto_Aux(N,R0,[H|T] , ListaSalida) :-
 
 % Caso Base: No quedan nodos por agregar
 construirNivel(_,0,NodosRestantes,NodosRestantesNuevo, ListaEntrada,ListaRetorno) :-
-	%
+	% Retornamos el numero de nodos restantes original, ya que no se efectuo
+	% ninguna operacion
 	NodosRestantesNuevo = NodosRestantes,
 	% Retornamos el resultado
 	ListaRetorno = ListaEntrada.
 	
-% Caso 1: Estamos agregando el primer Nodo
+% Caso 1: Estamos agregando el primer Nodo pero ya no quedan nodos en el arbol
 construirNivel(R0,Restante,0,_, [],ListaRetorno) :-
 	% Restamos un nodo al contador
 	RestanteTemp is Restante - 1,
@@ -206,43 +210,43 @@ construirNivel(R0,Restante,0,_, [],ListaRetorno) :-
 	% Retornamos la lista
 	ListaRetorno = ListaRetorno2.	
 	
-% Caso 2: Estamos agregando otros nodos ademas del primero
+% Caso 2: Estamos agregando otros nodos ademas del primero pero ya no quedan nodos en el arbol
 construirNivel(R0,Restante,0,NodosRestantesNuevo, ListaEntrada,ListaRetorno) :-
-	%
+	% Restamos uno al numero de hijos restantes
 	RestanteTemp is Restante - 1,
 	% Construimos el nuevo nivel
 	construirNivel(R0, RestanteTemp,0,NodosRestantesNuevoTemp, [0|ListaEntrada], ListaRetorno2),
-	% 
+	% Actualizamos el numero de nodos restantes
 	NodosRestantesNuevo = NodosRestantesNuevoTemp,
 	% Retornamos la lista
 	ListaRetorno = ListaRetorno2.
 
 % Caso 1: Estamos agregando el primer Nodo
 construirNivel(R0,Restante,NodosRestantes,NodosRestantesNuevo, [],ListaRetorno) :-
-	% 
+	% Obtenemos de manera al azar el numero de hijos que tendra el nodo
 	numeroAleatorioSeguro(NodosRestantes,R0,Numero),
-	% 
+	% Restamos al numero de nodos restantes, los hijos que crearemos
 	NodosRestantesTemp is NodosRestantes - Numero,
-	% 
+	% Restamos el nodo creado al numero de hijos restantes
 	RestanteTemp is Restante - 1,
-	% Construimos el nuevo nivel
+	% Contruimos el siguiente elemento del nivel
 	construirNivel(Numero, RestanteTemp,NodosRestantesTemp,NodosRestantesNuevoTemp, [Numero|[]], ListaRetorno2),
-	%
+	% Actualizamos el numero de nodos restantes
 	NodosRestantesNuevo = NodosRestantesNuevoTemp,
 	% Retornamos la lista
 	ListaRetorno = ListaRetorno2.
 
 % Caso 2: Estamos agregando otros nodos ademas del primero
 construirNivel(R0,Restante,NodosRestantes,NodosRestantesNuevo, ListaEntrada,ListaRetorno) :-
-	% 
+	% Obtenemos de manera al azar el numero de hijos que tendra el nodo
 	numeroAleatorioSeguro(NodosRestantes,R0,Numero),
-	%
+	% Restamos al numero de nodos restantes, los hijos que crearemos
 	NodosRestantesTemp is NodosRestantes - Numero,
-	%
+	% Restamos el nodo creado al numero de hijos restantes
 	RestanteTemp is Restante - 1,
 	% Construimos el nuevo nivel
 	construirNivel(Numero, RestanteTemp,NodosRestantesTemp,NodosRestantesNuevoTemp, [Numero|ListaEntrada], ListaRetorno2),
-	% 
+	% Actualizamos el numero de nodos restantes
 	NodosRestantesNuevo = NodosRestantesNuevoTemp,
 	% Retornamos la lista
 	ListaRetorno = ListaRetorno2.
