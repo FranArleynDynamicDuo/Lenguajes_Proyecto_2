@@ -255,17 +255,22 @@ etiquetamiento(esq([[H1|T1]|T]),ArbolResultante) :-
 	ListaEntrada = T,
 	numeroNodosEsqueleto(esq([[H1|T1]|T]),0,NumeroNodos),
 	AristaActual is NumeroNodos - 1,
-	etiquetamientoAux(ListaEntrada,NumeroDeHijos,AristaActual,_,ArbolResultante).
+	etiquetamientoAux(nodo(NumeroNodos,[]),NumeroDeHijos,AristaActual,_,ArbolResultante).
 	
-etiquetamientoAux([0|_],_, EtiquetaNodoPadre,AristaActual,_,ArbolResultante) :-
+etiquetamientoAux(nodo(Et,[0|_]),_, EtiquetaNodoPadre,AristaActual,_,ArbolResultante) :-
 	Etiqueta is EtiquetaNodoPadre - AristaActual,
 	ArbolResultante = nodo(Etiqueta,[]).
 	
-etiquetamientoAux([_|[]],_,_,ArbolActual,ArbolResultante) :-
+etiquetamientoAux(nodo(Et,[_|[]]),_,_,ArbolActual,ArbolResultante) :-
 	ArbolResultante = ArbolActual.
 	
-etiquetamientoAux([H|T],NumeroDeHijos,AristaActual,ArbolActual,ArbolResultante) :-
-	H > 0.
+etiquetamientoAux(nodo(Et,[H|T]),NumeroDeHijos,AristaActual,ArbolActual,ArbolResultante) :-
+	H > 0,
+	% Recorro hacia abajo
+	etiquetamientoAux([H|T],NumeroDeHijos,AristaActual,ArbolActual,ArbolResultante),
+	% Recorro hacia los lados
+	etiquetamientoAux(T,NumeroDeHijos,AristaActual,ArbolActual,ArbolResultante).
+	
 	 
  
 	
