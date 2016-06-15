@@ -16,11 +16,11 @@ potencia(X,Y,Z) :- A is Y -1, potencia(X,A,B), Z is B*X.
 % Caso 1: Quedan menos nodos disponibles que el maximo por nivel
 numeroAleatorioSeguro(NumeroNodosTotal,NumeroNodosPorNivel,Resultado) :-
 	NumeroNodosTotal < NumeroNodosPorNivel,
-	random_between(0, NumeroNodosTotal, Resultado).
+	random_between(1, NumeroNodosTotal, Resultado).
 % Caso 2: Quedan menos nodos disponibles que el maximo por nivel	
 numeroAleatorioSeguro(NumeroNodosTotal,NumeroNodosPorNivel,Resultado) :-
 	NumeroNodosTotal >= NumeroNodosPorNivel,
-	random_between(0, NumeroNodosPorNivel, Resultado).
+	random_between(1, NumeroNodosPorNivel, Resultado).
 
 % etiquetas(+nodo,-Retorno)
 % Obtiene la etiqueta de un nodo
@@ -175,10 +175,12 @@ esqueleto_Aux(N,R0,[H|T] , ListaSalida) :-
 	sum_list(H,NumeroDeNodosEnNivel),
 	% Construimos la lista referente al nivel N
 	construirNivel(R0,NumeroDeNodosEnNivel,N,NodosRestanteNuevo, [],ListaSalida2),
+	% Revertimos la lista
+	reverse(ListaSalida2,ListaRevertida),
 	% Llamamos a la funcion de nuevo para agregar otro nivel
-	esqueleto_Aux(NodosRestanteNuevo,R0,[ListaSalida2|[H|T]] , ListaSalida3),
+	esqueleto_Aux(NodosRestanteNuevo,R0,[ListaRevertida|[H|T]] , ListaSalida3),
 	% Retornamos la lista final
-	ListaSalida = ListaSalida3.
+	ListaSalida = ListaSalida3. 
 
 % construirNivel(R0,Restante, ListaEntrada,ListaRetorno).
 % Construye un nivel del esqueleto con el maximo de elementos
@@ -217,14 +219,14 @@ construirNivel(R0,Restante,0,NodosRestantesNuevo, ListaEntrada,ListaRetorno) :-
 
 % Caso 1: Estamos agregando el primer Nodo
 construirNivel(R0,Restante,NodosRestantes,NodosRestantesNuevo, [],ListaRetorno) :-
-	%
+	% 
 	numeroAleatorioSeguro(NodosRestantes,R0,Numero),
 	% 
 	NodosRestantesTemp is NodosRestantes - Numero,
-	%
+	% 
 	RestanteTemp is Restante - 1,
 	% Construimos el nuevo nivel
-	construirNivel(R0, RestanteTemp,NodosRestantesTemp,NodosRestantesNuevoTemp, [Numero|[]], ListaRetorno2),
+	construirNivel(Numero, RestanteTemp,NodosRestantesTemp,NodosRestantesNuevoTemp, [Numero|[]], ListaRetorno2),
 	%
 	NodosRestantesNuevo = NodosRestantesNuevoTemp,
 	% Retornamos la lista
@@ -239,7 +241,7 @@ construirNivel(R0,Restante,NodosRestantes,NodosRestantesNuevo, ListaEntrada,List
 	%
 	RestanteTemp is Restante - 1,
 	% Construimos el nuevo nivel
-	construirNivel(R0, RestanteTemp,NodosRestantesTemp,NodosRestantesNuevoTemp, [Numero|ListaEntrada], ListaRetorno2),
+	construirNivel(Numero, RestanteTemp,NodosRestantesTemp,NodosRestantesNuevoTemp, [Numero|ListaEntrada], ListaRetorno2),
 	% 
 	NodosRestantesNuevo = NodosRestantesNuevoTemp,
 	% Retornamos la lista
